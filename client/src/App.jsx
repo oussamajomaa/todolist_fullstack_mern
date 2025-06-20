@@ -9,8 +9,6 @@ import AccountActivated from './pages/AccountActivated'
 import Admin from './pages/Admin'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <BrowserRouter>
       <Routes>

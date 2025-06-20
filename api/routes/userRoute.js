@@ -1,59 +1,66 @@
-const express = require('express')
-const User = require('../models/User')
-const bcrypt = require('bcrypt')
-const router = express.Router()
-const jwt = require('jsonwebtoken')
-// const nodemailer = require('nodemailer')
-// const transporter = require('../util/transporter')
-// const mail = require('../util/mail')
+const express = require('express');
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const router = express.Router();
 
+// Route d'inscription d'un nouvel utilisateur
 router.post('/register', async (req, res) => {
-    // const username = req.body.username
-    const { username, email, password } = req.body
-    const existinguser = await User.findOne({ email })
+    const { username, email, password } = req.body;
+
+    // Vérifie si l'utilisateur existe déjà
+    const existinguser = await User.findOne({ email });
     if (existinguser) {
-        return res.status(400).json({ message: "Bad request" })
+        return res.status(400).json({ message: "Bad request" }); // Email déjà utilisé
     }
-    const hash = await bcrypt.hash(password, 10)
-    await User.create({ username, email, password: hash })
-    
 
+    // Hash du mot de passe avant sauvegarde
+    const hash = await bcrypt.hash(password, 10);
 
-    // const activationToken = jwt.sign(
-    //     { email },
-    //     process.env.JWT_SECRET,
-    //     { expiresIn: '1d' } // token valable 1 jour
-    // );
-    // const activationLink = `http://localhost:5000/activate/${activationToken}`;
-    // await mail(email,username,activationLink)
+    // Création du nouvel utilisateur
+    await User.create({ username, email, password: hash });
 
-    res.status(201).json({ message: "Un utilisateur a été ajouté" })
-})
+    // Réponse de succès
+    res.status(201).json({ message: "Un utilisateur a été ajouté" });
+});
 
-router.post('/login', async(req,res)=> {
-    // const {email,password} = req.body
-    const email = req.body.email
-    const password = req.body.password
-    const user = await User.findOne({email})
+// Route de connexion
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Recherche de l'utilisateur par email
+    const user = await User.findOne({ email });
     if (!user) {
-        return res.status(404).json({message:"Identifiants invalides"})
+        return res.status(404).json({ message: "Identifiants invalides" });
     }
-    
-    const isMatch = await bcrypt.compare(password, user.password)
+
+    // Vérification du mot de passe
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        return res.status(404).json({message:"Identifiants invalides"})
+        return res.status(404).json({ message: "Identifiants invalides" });
     }
+
+    // Génération du token JWT
     const token = jwt.sign(
-        {id:user._id, email:user.email, role:user.role, username:user.username},
-        process.env.JWT_SECRET
-    )
+        {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+            username: user.username
+        },
+        process.env.JWT_SECRET // Clé secrète définie dans le fichier .env
+    );
+
+    // Envoi des infos utiles au client
     res.status(200).json({
-        email:email,
-        role:user.role,
-        username:user.username,
-        token:token
-    })
-})
+        email: user.email,
+        role: user.role,
+        username: user.username,
+        token: token
+    });
+});
+
+
 
 
 
