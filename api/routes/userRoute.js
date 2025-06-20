@@ -31,7 +31,9 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', async(req,res)=> {
-    const {email,password} = req.body
+    // const {email,password} = req.body
+    const email = req.body.email
+    const password = req.body.password
     const user = await User.findOne({email})
     if (!user) {
         return res.status(404).json({message:"Identifiants invalides"})
@@ -42,12 +44,13 @@ router.post('/login', async(req,res)=> {
         return res.status(404).json({message:"Identifiants invalides"})
     }
     const token = jwt.sign(
-        {id:user._id, email:user.email, role:user.role},
+        {id:user._id, email:user.email, role:user.role, username:user.username},
         process.env.JWT_SECRET
     )
     res.status(200).json({
         email:email,
         role:user.role,
+        username:user.username,
         token:token
     })
 })

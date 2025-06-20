@@ -3,9 +3,10 @@ import { useState } from 'react'
 
 import { BrowserRouter,Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
-import Home from './pages/Home'
+import Task from './pages/Task'
 import Register from './pages/Register'
 import AccountActivated from './pages/AccountActivated'
+import Admin from './pages/Admin'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,7 +15,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/tasks" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/tasks" element={<Task />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account-activated" element={<AccountActivated />} />
       </Routes>

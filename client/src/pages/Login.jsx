@@ -23,15 +23,21 @@ export default function Login() {
             localStorage.setItem('email',data.email)
             localStorage.setItem('role',data.role)
             localStorage.setItem('token',data.token)
+            localStorage.setItem('username',data.username)
             // const payload = jwtDecode(data)
             // console.log(payload)
-            navigate('/tasks')
+            if (data.role === 'user') navigate('/tasks')
+            if (data.role === 'admin') navigate('/admin')
         }
     }
+    // const role = localStorage.getItem('role')
+    // if (role === "user") {
+    //     return <Navigate to={'/tasks'} />
+    // }
 
-    if (localStorage.getItem('token')) {
-        return <Navigate to={'/tasks'} />
-    }
+    // if (role === "admin") {
+    //     return <Navigate to={'/admin'} />
+    // }
     
   return (
     <div className="h-screen flex justify-center items-center">

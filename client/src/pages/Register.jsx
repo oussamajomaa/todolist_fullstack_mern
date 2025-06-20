@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { ToastContainer, toast } from 'react-toastify'
 
 export default function Register() {
+    const navigate = useNavigate()
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -19,6 +21,8 @@ export default function Register() {
             .then(data => {
                 if (data.message === "Un utilisateur a été ajouté") {
                     toast.success(data.message)
+                    navigate('/')
+
                 } else {
                     toast.error(data.message || "Erreur lors de l'inscription")
                 }
