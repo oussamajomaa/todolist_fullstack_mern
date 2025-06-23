@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const userRoute = require('./routes/userRoute');
 const taskRoute = require('./routes/taskRoute');
+const adminRoute = require('./routes/adminRoute')
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json()); // Parse automatiquement les requêtes JSON
 // Utilisation des routes
 app.use('', userRoute); // Routes pour /register, /login, etc.
 app.use('', taskRoute); // Routes pour /task, /task/:id, etc.
+app.use('', adminRoute); // Routes pour /admin.
 
 // Définition du port
 const PORT = process.env.PORT || 5000;

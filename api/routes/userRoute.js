@@ -3,11 +3,15 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const nodemailer = require('nodemailer')
 
 // Route d'inscription d'un nouvel utilisateur
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'Tous les champs sont requis' })
+    }
     // Vérifie si l'utilisateur existe déjà
     const existinguser = await User.findOne({ email });
     if (existinguser) {
@@ -18,11 +22,57 @@ router.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     // Création du nouvel utilisateur
-    await User.create({ username, email, password: hash });
+    await User.create({ username, email, password: hash })
 
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_FROM,
+            pass: process.env.EMAIL_PASS
+        }
+    })
+
+    const token = jwt.sign(
+        {
+            email: email,
+        },
+        process.env.JWT_SECRET // Clé secrète définie dans le fichier .env
+    );
+
+
+    const activationLink = `http://localhost:5000/validate/${token}`
+    const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: email,
+        subject: "Active ton compte",
+        html: `<p>Bonjour ${username},</p>
+                <p>Merci de t’être inscrit. Clique ici pour activer ton compte :</p>
+                <a href="${activationLink}">${activationLink}</a>`
+    }
+
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) return console.log(err)
+        console.log('email envoyé ', info)
+    })
     // Réponse de succès
     res.status(201).json({ message: "Un utilisateur a été ajouté" });
 });
+
+router.get('/validate/:token', async (req, res) => {
+    try {
+        const decoded = jwt.verify(req.params.token, process.env.JWT_SECRET);
+        const user = await User.findOne({ email: decoded.email });
+
+        if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+
+        user.isVerified = true;
+        await user.save();
+
+        res.status(200).send("Compte activé !");
+    } catch {
+        res.status(400).send("Lien invalide ou expiré.");
+    }
+})
 
 // Route de connexion
 router.post('/login', async (req, res) => {
@@ -60,49 +110,5 @@ router.post('/login', async (req, res) => {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-router.get('/activate/:token', async (req, res) => {
-    try {
-        // Récupération du token JWT depuis l'URL
-        const token = req.params.token
-        // décode et valide la signature avec la clé JWT_SECRET
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const user = await User.findOne({ email: decoded.email })
-
-        if (!user) return res.status(404).json({ message: "Utilisateur introuvable" })
-        // On met à jour la propriété isVerified de l’utilisateur → activation du compte 
-        user.isVerified = true;
-        // Puis on sauvegarde ce changement dans MongoDB.
-        await user.save();
-        // On redirige l’utilisateur vers une page React : /account-activated
-        res.status(200).redirect('http://localhost:5173/account-activated')
-    } catch {
-        res.status(400).json({message:"Lien invalide ou expiré."})
-    }
-})
 
 module.exports = router

@@ -1,6 +1,10 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import AuthForm from "../components/AuthForm";
+import { toast } from "react-toastify";
 
+
+const API_URL = import.meta.env.VITE_API_URL
 export default function Login() {
 	// États pour les champs du formulaire
 	const [email, setEmail] = useState('');
@@ -14,7 +18,7 @@ export default function Login() {
 		e.preventDefault();
 
 		// Envoi de la requête POST au backend
-		const response = await fetch('http://localhost:5000/login', {
+		const response = await fetch(`${API_URL}/login`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'Application/json'
@@ -22,9 +26,9 @@ export default function Login() {
 			body: JSON.stringify({ email, password }) // Données envoyées au serveur
 		});
 
+		const data = await response.json();
 		if (response.ok) {
 			// Réponse réussie : on récupère les données
-			const data = await response.json();
 
 			// Stockage des informations utiles dans le localStorage
 			localStorage.setItem('email', data.email);
@@ -35,37 +39,25 @@ export default function Login() {
 			// Redirection en fonction du rôle
 			if (data.role === 'user') navigate('/tasks');
 			if (data.role === 'admin') navigate('/admin');
+		} else {
+			console.log(data)
+			toast.error(data.message)
 		}
 	};
 
+	const inputs = [
+		{ name: "email", type: "email", placeholder: "Email..." },
+		{ name: "password", type: "password", placeholder: "Mot de passe..." }
+	]
 	return (
 		<div className="h-screen flex justify-center items-center">
-			{/* Formulaire de connexion */}
-			<form onSubmit={handleSubmit} className="w-[460px] flex flex-col gap-3 p-5 rounded shadow-2xl">
-				<h1 className="text-center text-3xl font-bold">Connexion</h1>
-
-				{/* Champ de saisie pour l'email */}
-				<input
-					placeholder="Email..."
-					className="input input-primary w-full"
-					onChange={(e) => setEmail(e.target.value)}
-					type="email"
-				/>
-
-				{/* Champ de saisie pour le mot de passe */}
-				<input
-					placeholder="Mot de passe..."
-					className="input input-primary w-full"
-					onChange={(e) => setPassword(e.target.value)}
-					type="password"
-				/>
-
-				{/* Bouton pour soumettre le formulaire */}
-				<button className="btn btn-primary">Se connecter</button>
-
-				{/* Lien vers la page de création de compte */}
-				<Link to={'/register'}>Créer un compte</Link>
-			</form>
+			
+			<AuthForm 
+				title={'Connexion'}
+				handleSubmit={handleSubmit}
+				onChangeEmail={(e)=> setEmail(e.target.value)}
+				onChangePassword={(e)=> setPassword(e.target.value)}
+			/>
 		</div>
 	);
 }

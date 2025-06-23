@@ -4,6 +4,8 @@ import { RiAddLargeLine } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
 import Item from "../components/Item";
 import TaskModal from "../components/TaskModal";
+import { toast } from "react-toastify";
+
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -51,6 +53,7 @@ export default function Task() {
 			const data = await response.json();
 			console.log(data);
 			fetchTasks(); // Met à jour la liste après suppression
+			toast.warning(data.message)
 		}
 	};
 
@@ -74,10 +77,13 @@ export default function Task() {
 				},
 				body: JSON.stringify({ title, status: isChecked })
 			});
+			const data = await response.json();
 			if (response.ok) {
-				const data = await response.json();
 				console.log(data);
 				fetchTasks();
+				toast.success(data.message)
+			} else {
+				toast.error(data.message)
 			}
 		} else {
 			// Création d'une nouvelle tâche
@@ -89,11 +95,14 @@ export default function Task() {
 				},
 				body: JSON.stringify({ title })
 			});
+			const data = await response.json();
 			if (response.ok) {
-				const data = await response.json();
 				console.log(data);
 				setTitle('');
 				fetchTasks();
+				toast.success(data.message)
+			} else {
+				toast.error(data.message)
 			}
 		}
 
