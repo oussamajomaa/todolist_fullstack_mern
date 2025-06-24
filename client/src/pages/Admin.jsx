@@ -42,7 +42,6 @@ export default function Admin() {
 
 		} else {
 			const data = await response.json()
-			console.log(data)
 			setUsers(data)
 		}
 	}
@@ -69,7 +68,6 @@ export default function Admin() {
 
 
 	const confirmDelete = (id) => {
-		console.log(id)
 		setSelectedUser(id)
 		// document.getElementById('delete_confirm').showModal()
 		modal.current.showModal()
