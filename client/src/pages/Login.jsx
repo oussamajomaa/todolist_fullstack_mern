@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import AuthForm from "../components/AuthForm";
 import { toast } from "react-toastify";
 
@@ -20,8 +20,9 @@ export default function Login() {
 		// Envoi de la requête POST au backend
 		const response = await fetch(`${API_URL}/login`, {
 			method: 'POST',
+			credentials:'include',
 			headers: {
-				'Content-Type': 'Application/json'
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ email, password }) // Données envoyées au serveur
 		});
@@ -29,26 +30,24 @@ export default function Login() {
 		const data = await response.json();
 		if (response.ok) {
 			// Réponse réussie : on récupère les données
-
+			console.log(data);
+			
 			// Stockage des informations utiles dans le localStorage
 			localStorage.setItem('email', data.email);
 			localStorage.setItem('role', data.role);
-			localStorage.setItem('token', data.token);
 			localStorage.setItem('username', data.username);
 
 			// Redirection en fonction du rôle
 			if (data.role === 'user') navigate('/tasks');
 			if (data.role === 'admin') navigate('/admin');
+
+
 		} else {
-			console.log(data)
 			toast.error(data.message)
+			console.log(response)
 		}
 	};
 
-	const inputs = [
-		{ name: "email", type: "email", placeholder: "Email..." },
-		{ name: "password", type: "password", placeholder: "Mot de passe..." }
-	]
 	return (
 		<div className="h-screen flex justify-center items-center">
 			
@@ -58,6 +57,7 @@ export default function Login() {
 				onChangeEmail={(e)=> setEmail(e.target.value)}
 				onChangePassword={(e)=> setPassword(e.target.value)}
 			/>
+			
 		</div>
 	);
 }

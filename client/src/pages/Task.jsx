@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Item from "../components/Item";
 import TaskModal from "../components/TaskModal";
 import { toast } from "react-toastify";
+import Swal from 'sweetalert2'
 
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -22,13 +23,13 @@ export default function Task() {
 
 	// Récupération du token JWT depuis le localStorage
 	const token = localStorage.getItem('token');
-
 	// Fonction pour récupérer toutes les tâches
 	const fetchTasks = async () => {
 		const response = await fetch(`${API_URL}/task`, {
-			headers: {
-				'Authorization': `Bearer ${token}`
-			}
+			// headers: {
+			// 	'Authorization': `Bearer ${token}`
+			// },
+			credentials: 'include'
 		});
 		if (response.ok) {
 			const data = await response.json();
@@ -45,23 +46,37 @@ export default function Task() {
 	const handleDelete = async (id) => {
 		const response = await fetch(`${API_URL}/task/${id}`, {
 			method: 'DELETE',
-			headers: {
-				'Authorization': `Bearer ${token}`
-			}
+			// headers: {
+			// 	'Authorization': `Bearer ${token}`
+			// }
+			credentials: 'include',
 		});
 		if (response.ok) {
 			const data = await response.json();
 			console.log(data);
 			fetchTasks(); // Met à jour la liste après suppression
-			toast.warning(data.message)
+			// toast.warning(data.message)
+
 		}
 	};
 
 	// Déconnexion de l'utilisateur
-	const logout = () => {
-		localStorage.clear();
-		navigate('/');
-	};
+	const handleLogout = async () => {
+		const response = await fetch(`${API_URL}/logout`, {
+			method: 'POST',
+			credentials: 'include' // ⬅️ important pour envoyer le cookie
+		});
+
+		if (response.ok) {
+			// Nettoyage éventuel de localStorage si tu y mets d'autres choses
+			localStorage.clear()
+			navigate('/') // ou redirection vers la page de login
+		} else {
+			const data = await response.json()
+			console.error('Erreur de déconnexion', data)
+		}
+	}
+
 
 	// Ajout ou mise à jour d'une tâche
 	const handleSubmit = async (e) => {
@@ -73,15 +88,17 @@ export default function Task() {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'Application/json',
-					'Authorization': `Bearer ${token}`
+					// 'Authorization': `Bearer ${token}`
 				},
+				credentials: 'include',
 				body: JSON.stringify({ title, status: isChecked })
 			});
 			const data = await response.json();
 			if (response.ok) {
 				console.log(data);
 				fetchTasks();
-				toast.success(data.message)
+				// toast.success(data.message)
+				Swal.fire('La tâche a été modifiée', '', 'info')
 			} else {
 				toast.error(data.message)
 			}
@@ -91,8 +108,9 @@ export default function Task() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'Application/json',
-					'Authorization': `Bearer ${token}`
+					// 'Authorization': `Bearer ${token}`
 				},
+				credentials: 'include',
 				body: JSON.stringify({ title })
 			});
 			const data = await response.json();
@@ -128,17 +146,17 @@ export default function Task() {
 		setTitle('');
 	};
 
-	// Redirige si l'utilisateur n'est pas connecté
-	if (!token) {
-		return <Navigate to={'/'} />;
-	}
+	// // Redirige si l'utilisateur n'est pas connecté
+	// if (!token) {
+	// 	return <Navigate to={'/'} />;
+	// }
 
 	return (
 		<div className="w-[460px] m-auto p-5 rounded mt-5">
 			{/* Header avec infos utilisateur et bouton déconnexion */}
 			<div className="bg-slate-500 h-16 mb-3 text-white p-4 rounded flex justify-between items-center">
 				<p>{localStorage.getItem('username')} - {localStorage.getItem('role')}</p>
-				<button className="btn btn-square" onClick={logout}>
+				<button className="btn btn-square" onClick={handleLogout}>
 					<IoLogOut size={24} />
 				</button>
 			</div>

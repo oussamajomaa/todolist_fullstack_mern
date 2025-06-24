@@ -2,15 +2,22 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config(); // Chargement des variables d'environnement
 const cors = require('cors');
+const cookieParser = require('cookie-parser')
 
 const userRoute = require('./routes/userRoute');
 const taskRoute = require('./routes/taskRoute');
 const adminRoute = require('./routes/adminRoute')
 
 const app = express();
+app.use(cookieParser())
 
 // Middlewares globaux
-app.use(cors()); // Autorise les requêtes cross-origin (CORS)
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
+
+
 app.use(express.json()); // Parse automatiquement les requêtes JSON
 
 // Utilisation des routes

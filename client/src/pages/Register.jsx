@@ -26,9 +26,9 @@ export default function Register() {
         })
         if (!response.ok) {
             console.log(response);
-            toast.error(response.statusText);
         } else {
-            navigate('/')
+            toast.success(response.statusText);
+            // navigate('/')
         }
 
     };
