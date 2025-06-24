@@ -110,12 +110,12 @@ router.post('/login', async (req, res) => {
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
-        maxAge: 2 * 60 * 60 * 1000 // 2h
+        secure: true, // obligatoire pour sameSite: 'None'
+        sameSite: 'None', // PAS 'Strict'
+        maxAge: 2 * 60 * 60 * 1000
     })
 
-    res.status(200).json({ role:user.role,username:user.username,email:user.email })
+    res.status(200).json({ role: user.role, username: user.username, email: user.email })
 
     // Envoi des infos utiles au client
     // res.status(200).json({
@@ -127,13 +127,13 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    sameSite: 'Strict',
-    secure: process.env.NODE_ENV === 'production'
-  })
+    res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: process.env.NODE_ENV === 'production'
+    })
 
-  res.status(200).json({ message: 'Déconnecté avec succès' })
+    res.status(200).json({ message: 'Déconnecté avec succès' })
 })
 
 
