@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
     )
 
 
-    const activationLink = `http://localhost:5000/validate/${token}`
+    const activationLink = `https://todolist-s9y9.onrender.com/validate/${token}`
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
@@ -71,7 +71,7 @@ router.get('/validate/:token', async (req, res) => {
         user.isVerified = true
         await user.save()
 
-        res.status(200).redirect('http://localhost:5173/activated-account')
+        res.status(200).redirect('https://todolist-front-1hz2.onrender.com/activated-account')
     } catch {
         res.status(400).json({ message: "Lien invalide ou expiré." })
     }
