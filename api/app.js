@@ -18,10 +18,10 @@ app.use(cookieParser())
 // }))
 
 app.use(cors({
-    origin: 'https://todolist-front-1hz2.onrender.com/',
+    origin: 'https://todolist-front-1hz2.onrender.com',
     credentials: true
 }))
-/
+
 
 
 app.use(express.json()); // Parse automatiquement les requêtes JSON
